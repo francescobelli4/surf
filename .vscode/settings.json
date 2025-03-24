@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "syscall.h": "c",
+        "unistd.h": "c",
+        "options.h": "c",
+        "stdio.h": "c",
+        "fcntl.h": "c",
+        "stdlib.h": "c"
+    }
+}
