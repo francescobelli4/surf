@@ -5,6 +5,7 @@
         "options.h": "c",
         "stdio.h": "c",
         "fcntl.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "utils.h": "c"
     }
 }

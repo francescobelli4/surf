@@ -2,9 +2,16 @@
 
 typedef struct terminal_table {
     
+    // Numero di linee attuali
     int n_lines;
+
+    // Dimensione massima della tabella (espandibile)
     int table_dim;
+
+    // Larghezza di ogni colonna (per allineare i dati printati...)
     int *widths;
+
+    // Vere e proprie linee fatte dalle varie entry
     char*** lines;
 } TerminalTable;
 

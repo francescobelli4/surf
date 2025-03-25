@@ -27,6 +27,10 @@ void allocate_options(int argc, char **argv) {
             if (options.path == NULL) {
                 options.path = argv[i];
                 setenv("PWD", argv[i], true);
+                // Il cambio della CWD (current working directory) è necessario per poter
+                // ottenere le info di stat() anche di cartelle "superiori" a quella in cui
+                // il programma è situato!
+                chdir(argv[i]);
             }
         }
     }
