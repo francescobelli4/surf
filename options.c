@@ -5,12 +5,15 @@
 
 static Options options;
 
+/**
+ * This function setups the Options struct
+ */
 void allocate_options(int argc, char **argv) {
 
 
     for (size_t i = 1; i < argc; i++)
     {
-
+        // Handle options
         if (argv[i][0] == '-') {
             
             switch (argv[i][1])
@@ -23,18 +26,21 @@ void allocate_options(int argc, char **argv) {
             default:
                 break;
             }
+        // Handle chosen path
         } else {
             if (options.path == NULL) {
                 options.path = argv[i];
                 setenv("PWD", argv[i], true);
-                // Il cambio della CWD (current working directory) è necessario per poter
-                // ottenere le info di stat() anche di cartelle "superiori" a quella in cui
-                // il programma è situato!
+                
+
+                // In order to get "upper" folders' stats, it's necessary to change the CWD
+                // (current working directory).
                 chdir(argv[i]);
             }
         }
     }
 
+    // If option.path is null, the user wants to list current directory
     if (options.path == NULL) {
         options.path = getenv("PWD");
     }

@@ -3,13 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define N_COLS 7
+
 static TerminalTable terminal_table;
 
 TerminalTable *getTerminalTable() {
     return &terminal_table;
 }
 
-// Bisogna gestire bene le emoji...
+/**
+ * This function returns a string's length. It has to manage emojis properly...
+ */
 int str_len(char *str) {
     
     int len = 0;
@@ -18,12 +22,12 @@ int str_len(char *str) {
     bool found_emoji = false;
     while (*next)
     {
-        // Se il carattere ha valore numerico minore di zero, sto scorrendo una emoji
+        // A char that has an int value < 0, is representing a part of the emoji
         if (next[0] > 0) {
             len++;
 
             if (found_emoji) {
-                // Le emoji occupano 2 spazi
+                // Emojis need 2 spaces in the terminal
                 len += 2;
                 found_emoji = false;
             }
@@ -34,53 +38,62 @@ int str_len(char *str) {
         next++;
     }
 
-    // Le emoji occupano 2 spazi
+    // Emojis need 2 spaces in the terminal
     if (found_emoji) len+=2;
 
     return len;
 }
 
-// Preparo la struct per l'output del terminale...
+/**
+ * This function setups the terminal table struct
+ */
 void allocate_terminal_table() {
     terminal_table.n_lines = 0;
     terminal_table.table_dim = 0;
 
-    terminal_table.widths = (int *) malloc(5 * sizeof(int));
-    for (size_t i = 0; i < 5; i++)
+    terminal_table.widths = (int *) malloc(N_COLS * sizeof(int));
+    for (size_t i = 0; i < N_COLS; i++)
     {
         terminal_table.widths[i] = 0;
     }
 }
 
-// Creo una nuova linea per l'output del terminale
-char **createLine(char *perm, const char *type, char *dim, char *name, char *date) {
-    char **line = (char **) malloc(5 * sizeof(char *));
+/**
+ * This function creates a new line that will be a part of the terminal_table. 
+ * Every line is represented as an array of strings.
+ */
+char **createLine(char *perm, char* group, char* owner, const char *type, char *dim, char *name, char *date) {
+    char **line = (char **) malloc(N_COLS * sizeof(char *));
 
     line[0] = perm;
-    line[1] = type;
-    line[2] = dim;
-    line[3] = name;
-    line[4] = date;
+    line[1] = group;
+    line[2] = owner;
+    line[3] = type;
+    line[4] = dim;
+    line[5] = name;
+    line[6] = date;
 
     return line;
 }
 
-// Aggiungo una linea per l'output del terminale
+/**
+ * This function adds a new line to the terminal table. Each line can be created
+ * using createLine(...).
+ * terminal_table.lines is reallocated dynamically.
+ */
 void addLine(char** line) {
     terminal_table.n_lines++;
 
-    // Se la struct non riesce ad ospitare la nuova riga, espando l'allocazione di memoria
+    // Reallocation of terminal_table.lines
     if (terminal_table.n_lines > terminal_table.table_dim) {
         terminal_table.table_dim += 10;
         terminal_table.lines = realloc(terminal_table.lines, terminal_table.table_dim * sizeof(char **));
     }
 
-    // Aggiungo la linea
     terminal_table.lines[terminal_table.n_lines-1] = line;
 
-    // Per ogni colonna, vedo se il contenuto della nuova riga è più grande del
-    // massimo precedente: serve per "normalizzare" la larghezza di ogni colonna
-    for (size_t i = 0; i < 5; i++)
+    // Adjusting every column's width based on the last max width
+    for (size_t i = 0; i < N_COLS; i++)
     {
         int s_len = str_len(line[i]);
 
@@ -93,14 +106,13 @@ void addLine(char** line) {
 
 void print_table() {
 
-    int right_padding = 5;
+    int right_padding = 3;
 
     for (size_t i = 0; i < terminal_table.n_lines; i++)
     {
-        for (size_t j = 0; j < 5; j++) {
+        for (size_t j = 0; j < N_COLS; j++) {
 
-            // Lascio a destra di ogni entry tanti spazi quanti sono width[i] - len(line[i][j]) + padding
-            printf("%s%*s", terminal_table.lines[i][j], (terminal_table.widths[j] - str_len(terminal_table.lines[i][j])) + right_padding, ""); 
+            printf("|%s%*s", terminal_table.lines[i][j], (terminal_table.widths[j] - str_len(terminal_table.lines[i][j])) + right_padding, ""); 
         }
         printf("\n");
     }

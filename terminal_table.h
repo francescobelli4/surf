@@ -2,21 +2,21 @@
 
 typedef struct terminal_table {
     
-    // Numero di linee attuali
+    // Actual number of lines
     int n_lines;
 
-    // Dimensione massima della tabella (espandibile)
+    // Max table dimension (expandable)
     int table_dim;
 
-    // Larghezza di ogni colonna (per allineare i dati printati...)
+    // Every column's width
     int *widths;
 
-    // Vere e proprie linee fatte dalle varie entry
+    // Table lines
     char*** lines;
 } TerminalTable;
 
 void allocate_terminal_table();
-char **createLine(char *perm, const char *type, char *dim, char *name, char *date);
+char **createLine(char *perm, char* group, char* owner, const char *type, char *dim, char *name, char *date);
 void addLine(char** line);
 void print_table();
 TerminalTable* getTerminalTable();
