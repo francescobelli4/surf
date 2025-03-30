@@ -1,5 +1,6 @@
 #include <stdio.h>    
 #include <stdlib.h>
+#include <string.h>
 // SYS_* macros
 #include <sys/syscall.h> 
 // syscall(...)
@@ -12,6 +13,9 @@
 #include <pwd.h>   
 // getgrgid
 #include <grp.h>  
+// statx macros
+#include <linux/stat.h>
+#include <time.h>
 
 #include "utils.h"
 #include "options.h"
@@ -19,6 +23,7 @@
 
 #include <libintl.h>
 #include <locale.h>
+
 #define _(STRING) gettext(STRING)
 
 
@@ -62,7 +67,7 @@ int main (int argc, char **argv) {
 
 
     // This struct will be used to save files' metadata
-    struct stat f_metadata;
+    struct statx f_metadata;
 
     // Setting up options and terminal_table structs
     allocate_options(argc, argv);
@@ -100,14 +105,18 @@ int main (int argc, char **argv) {
 
             if (show_dir) {
 
-                // stat overwrites f_metadata to save a file's metadata (permissions, owner, group, size,...)
+                // statx overwrites f_metadata to save a file's metadata (permissions, owner, group, size,...)
                 // returns -1 in case of error
-                long res = syscall(SYS_stat, dir_data->d_name, &f_metadata);
+                long res = syscall(SYS_statx, AT_FDCWD, dir_data->d_name, AT_STATX_SYNC_AS_STAT, STATX_ALL, &f_metadata);
 
                 char *file_type = file_type_to_string(dir_data->d_type);
-                char *perms = res != -1 ? decode_permissions(f_metadata.st_mode) : "";
-                char *owner = res != -1 ? getpwuid(f_metadata.st_uid)->pw_name : "";
-                char *group = res != -1 ? getgrgid(f_metadata.st_gid)->gr_name : "";
+                char *perms     = res != -1 ? decode_permissions(f_metadata.stx_mode) : "";
+                char *owner     = res != -1 ? getpwuid(f_metadata.stx_uid)->pw_name : "";
+                char *group     = res != -1 ? getgrgid(f_metadata.stx_gid)->gr_name : "";
+                
+                time_t creation_time = f_metadata.stx_btime.tv_sec;
+                char *creation_date      = ctime(&creation_time);
+                creation_date[strcspn(creation_date, "\n")] = '\0';  
                 
                 
                 addLine(createLine(
@@ -115,9 +124,9 @@ int main (int argc, char **argv) {
                     group, 
                     owner, 
                     file_type, 
-                    dir_data->d_type == 8 ? sizeToString(f_metadata.st_size) : "-", 
+                    dir_data->d_type == 8 ? sizeToString(f_metadata.stx_size) : "-", 
                     dir_data->d_name, 
-                    "10/10/2010")
+                    creation_date)
                 );
             }
 

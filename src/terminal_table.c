@@ -106,13 +106,13 @@ void addLine(char** line) {
 
 void print_table() {
 
-    int right_padding = 3;
+    int right_padding = 2;
 
     for (size_t i = 0; i < terminal_table.n_lines; i++)
     {
         for (size_t j = 0; j < N_COLS; j++) {
 
-            printf("|%s%*s", terminal_table.lines[i][j], (terminal_table.widths[j] - str_len(terminal_table.lines[i][j])) + right_padding, ""); 
+            printf("| %s%*s", terminal_table.lines[i][j], (terminal_table.widths[j] - str_len(terminal_table.lines[i][j])) + right_padding, ""); 
         }
         printf("\n");
     }
