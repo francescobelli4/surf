@@ -8,7 +8,7 @@ CFLAGS = -Wall
 all: $(TARGET)
 
 $(TARGET):  
-	$(CC) $(CFLAGS) -o $(TARGET) src/surf.c src/options.c src/terminal_table.c
+	$(CC) $(CFLAGS) -o $(TARGET) src/surf.c src/options.c src/terminal_table.c src/utils.c
 
 clean:
 	rm -f $(TARGET)
