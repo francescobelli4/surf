@@ -1,0 +1,43 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Language: Italiano\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/surf.c:44
+msgid "Error"
+msgstr "Errore"
+
+#: src/surf.c:68
+msgid "PERMISSION"
+msgstr "PERMESSI"
+
+#: src/surf.c:68
+msgid "GROUP"
+msgstr "GRUPPO"
+
+#: src/surf.c:68
+msgid "OWNER"
+msgstr "AUTORE"
+
+#: src/surf.c:68
+msgid "TYPE"
+msgstr "TIPO"
+
+#: src/surf.c:68
+msgid "DIM"
+msgstr "DIM"
+
+#: src/surf.c:68
+msgid "NAME"
+msgstr "NOME"
+
+#: src/surf.c:68
+msgid "DATE"
+msgstr "DATA"

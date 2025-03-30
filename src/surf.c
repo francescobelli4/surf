@@ -17,6 +17,10 @@
 #include "options.h"
 #include "terminal_table.h"
 
+#include <libintl.h>
+#include <locale.h>
+#define _(STRING) gettext(STRING)
+
 
 #define BUFFER_SIZE 1024
 
@@ -38,7 +42,7 @@ int open_file() {
     // A file descriptor is an integer that identifies a file that has been opened in a process.
     int file_descriptor = syscall(SYS_openat, AT_FDCWD, getOptions()->path, O_RDONLY, 0);
     if (file_descriptor == -1) {
-        perror("Error");
+        perror(_("Error"));
         exit(1);
     }
     return file_descriptor;
@@ -46,6 +50,16 @@ int open_file() {
 
 
 int main (int argc, char **argv) {
+
+    setlocale(LC_ALL, "");
+    bindtextdomain("surf", "/usr/share/locale");
+    textdomain("surf");
+
+    // English fallback
+    if (setlocale(LC_ALL, NULL) == NULL) {
+        setlocale(LC_ALL, "en_US.UTF-8");
+    }
+
 
     // This struct will be used to save files' metadata
     struct stat f_metadata;
@@ -62,7 +76,7 @@ int main (int argc, char **argv) {
     int file_descriptor = open_file();
 
     // Header della tabella di output
-    addLine(createLine("PERMISSION", "GROUP", "OWNER", "TYPE", "DIM", "NAME", "DATE"));
+    addLine(createLine(_("PERMISSION"), _("GROUP"), _("OWNER"), _("TYPE"), _("DIM"), _("NAME"), _("DATE")));
 
     unsigned int n_byte; 
     // getdents64 reads n_bytes <= BUFFER_SIZE bytes from the file identified by file_descriptor
