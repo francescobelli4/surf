@@ -3,6 +3,8 @@
 typedef struct options {
     
     bool show_hidden;
+    bool show_links;
+    bool extended;
 
     char* path;
 } Options;

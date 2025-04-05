@@ -3,6 +3,66 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include "files.h"
+
+#define RESET       "\x1b[0m"
+
+#define BOLD        "\x1b[1m"
+#define DIM         "\x1b[2m"
+#define ITALIC      "\x1b[3m"
+#define UNDERLINE   "\x1b[4m"
+#define BLINK       "\x1b[5m"
+#define REVERSE     "\x1b[7m"
+#define HIDDEN      "\x1b[8m"
+
+#define BLACK       "\x1b[30m"
+#define RED         "\x1b[31m"
+#define GREEN       "\x1b[32m"
+#define YELLOW      "\x1b[33m"
+#define BLUE        "\x1b[34m"
+#define MAGENTA     "\x1b[35m"
+#define CYAN        "\x1b[36m"
+#define WHITE       "\x1b[37m"
+
+int clamp(int n, int inf, int sup) {
+   
+    if (n >= inf && n <= sup) return n;
+    if (n < inf) return inf; else return sup;
+}
+
+/**
+ * This function returns a string's length. It has to manage emojis properly...
+ */
+int str_len(char *str) {
+    
+    int len = 0;
+    char *next = str;
+
+    bool found_emoji = false;
+    while (*next)
+    {
+        // A char that has an int value < 0, is representing a part of the emoji
+        if (next[0] > 0) {
+            len++;
+
+            if (found_emoji) {
+                // Emojis need 2 spaces in the terminal
+                len += 2;
+                found_emoji = false;
+            }
+        } else {
+            found_emoji = true;
+        }
+
+        next++;
+    }
+
+    // Emojis need 2 spaces in the terminal
+    if (found_emoji) len+=2;
+
+    return len;
+}
 
 /**
  * This function converts mode_t mode (that is a bitmask representing file's permissions) to a
@@ -34,6 +94,18 @@ char *decode_permissions(mode_t mode) {
     strcat(perms, (mode & S_IXOTH) ? x : m);
 
     return perms;
+}
+
+/**
+ * This functions adds decorations to the format string I'm using to print file names in the terminal in the short version
+ */
+char *file_format_decoration(char *f_type) {
+    switch ((int) f_type[0]) {
+        case 4: return BOLD BLUE "%s%*s" RESET;
+        case 8: return ITALIC "%s%*s" RESET;
+        case 10: return CYAN "%s%*s" RESET;
+        default: return "%s%*s" RESET;
+    }
 }
 
 /**

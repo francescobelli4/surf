@@ -22,7 +22,14 @@ void allocate_options(int argc, char **argv) {
                 
                 options.show_hidden = true;
                 break;
+            case 'e':
             
+                options.extended = true;
+                break;
+            case 'l':
+
+                options.show_links = true;
+                break;
             default:
                 break;
             }

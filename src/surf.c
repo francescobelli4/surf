@@ -20,10 +20,11 @@
 #include "utils.h"
 #include "options.h"
 #include "terminal_table.h"
+#include "terminal_short.h"
+#include "files.h"
 
 #include <libintl.h>
 #include <locale.h>
-
 #define _(STRING) gettext(STRING)
 
 
@@ -37,6 +38,8 @@ struct linux_dirent64 {
     unsigned char  d_type;      // File type
     char           d_name[];    // Filename 
 };
+
+
 
 /**
  * This function uses the Options static struct to identify the file the user wants to open.
@@ -69,9 +72,9 @@ int main (int argc, char **argv) {
     // This struct will be used to save files' metadata
     struct statx f_metadata;
 
-    // Setting up options and terminal_table structs
+    // Setting up options and files struct
+    initialize_files();
     allocate_options(argc, argv);
-    allocate_terminal_table();
 
     // This buffer will contain linux_dirent64s
     char buffer[BUFFER_SIZE];
@@ -81,7 +84,7 @@ int main (int argc, char **argv) {
     int file_descriptor = open_file();
 
     // Header della tabella di output
-    addLine(createLine(_("PERMISSION"), _("GROUP"), _("OWNER"), _("TYPE"), _("DIM"), _("NAME"), _("DATE")));
+    //addLine(createLine(_("PERMISSION"), _("GROUP"), _("OWNER"), _("TYPE"), _("DIM"), _("NAME"), _("DATE")));
 
     unsigned int n_byte; 
     // getdents64 reads n_bytes <= BUFFER_SIZE bytes from the file identified by file_descriptor
@@ -93,48 +96,64 @@ int main (int argc, char **argv) {
         unsigned int offset = 0;
         while(offset < n_byte) {
 
-            bool show_dir = true;
+            bool show_file = true;
 
             // Reinitializing dir_data to point to every file's linux_dirent64 until every file has been checked
             dir_data = (struct linux_dirent64 *)(buffer+offset);
 
             // If a file name starts with ".", then it's an hidden file
             if (dir_data->d_name[0] == '.' && !getOptions()->show_hidden) {
-                show_dir = false;
+                show_file = false;
             }
 
-            if (show_dir) {
+            if (dir_data->d_type == 10 && !getOptions()->show_links) {
+                show_file = false;
+            }
+
+            if (show_file) {
 
                 // statx overwrites f_metadata to save a file's metadata (permissions, owner, group, size,...)
                 // returns -1 in case of error
                 long res = syscall(SYS_statx, AT_FDCWD, dir_data->d_name, AT_STATX_SYNC_AS_STAT, STATX_ALL, &f_metadata);
 
-                char *file_type = file_type_to_string(dir_data->d_type);
-                char *perms     = res != -1 ? decode_permissions(f_metadata.stx_mode) : "";
-                char *owner     = res != -1 ? getpwuid(f_metadata.stx_uid)->pw_name : "";
-                char *group     = res != -1 ? getgrgid(f_metadata.stx_gid)->gr_name : "";
+                // file_type will be one char if the user is using the short version, otherwise it will be file_type_to_string(type)!
+                char *file_type = (char *)malloc(2*sizeof(char));
+                file_type[0] = (char)dir_data->d_type;
+                file_type[1] = '\0';
                 
-                time_t creation_time = f_metadata.stx_btime.tv_sec;
-                char *creation_date      = ctime(&creation_time);
-                creation_date[strcspn(creation_date, "\n")] = '\0';  
-                
-                
-                addLine(createLine(
+                char *perms;
+                char *group;
+                char *owner;
+                char *creation_date;
+
+                if (getOptions()->extended) {
+                    file_type = file_type_to_string(dir_data->d_type);
+                    perms     = res != -1 ? decode_permissions(f_metadata.stx_mode) : "";
+                    owner     = res != -1 ? getpwuid(f_metadata.stx_uid)->pw_name : "";
+                    group     = res != -1 ? getgrgid(f_metadata.stx_gid)->gr_name : "";  
+                    time_t creation_time = f_metadata.stx_btime.tv_sec;
+                    creation_date      = ctime(&creation_time);
+                    creation_date[strcspn(creation_date, "\n")] = '\0';  
+                }
+
+                // Many of these strings will be NULL if the user is using the short version! (because less info are needed...)
+                addFile(createFile(
                     perms, 
                     group, 
                     owner, 
                     file_type, 
                     dir_data->d_type == 8 ? sizeToString(f_metadata.stx_size) : "-", 
                     dir_data->d_name, 
-                    creation_date)
-                );
+                    creation_date
+                ));
             }
 
             offset += dir_data->d_reclen;
         }
     }
 
-    print_table();
+
+    getOptions()->extended ? print_table() : print_short();
 
     // Closing the file...
     syscall(SYS_close, file_descriptor);

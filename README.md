@@ -65,7 +65,9 @@ surf [option] [directory]
 ### Available options:
 
 ```bash
+-e: Show a files list with more info
 -h: Show hidden files
+-l: Show symbolic links
 ... WIP :D ...
 ```
 
