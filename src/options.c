@@ -2,6 +2,7 @@
 #include <stdio.h>    
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 static Options options;
 
@@ -36,9 +37,13 @@ void allocate_options(int argc, char **argv) {
         // Handle chosen path
         } else {
             if (options.path == NULL) {
-                options.path = argv[i];
-                setenv("PWD", argv[i], true);
-                
+                if (argv[i][0] == '/') { //Absolute path
+                    options.path = argv[i];
+                } else { //Non absolute path!
+                    char *actual_pwd = getenv("PWD");
+                    options.path = strcat(actual_pwd, "/");
+                    options.path = strcat(options.path, argv[i]);
+                }
 
                 // In order to get "upper" folders' stats, it's necessary to change the CWD
                 // (current working directory).

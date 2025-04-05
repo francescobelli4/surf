@@ -82,8 +82,7 @@ If no path is specified, it will show the current directory.
 
 ### Known Issues
 
-Bug: Running surf (subfolder)/ results in an error. This issue is known and will be addressed in future updates.
-TODO: fix "DATE" column
+NONE
 
 ### Notes
 
