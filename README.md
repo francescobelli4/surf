@@ -1,4 +1,4 @@
-# Surf - (educational)
+# Surf
 
 **Surf** is a simple reimplementation of the Linux `ls` command, written in C. The project is still in development and focuses on using **Linux system calls** directly, minimizing the use of C standard library wrappers for core operations.
 
