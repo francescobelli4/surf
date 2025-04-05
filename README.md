@@ -2,7 +2,7 @@
 
 **Surf** is a simple reimplementation of the Linux `ls` command, written in C. The project is still in development and focuses on using **Linux system calls** directly, minimizing the use of C standard library wrappers for core operations.
 
-![image](https://github.com/user-attachments/assets/7ee404cf-9e0a-4ac1-8ad6-647b5aa16099)
+![image](https://github.com/user-attachments/assets/f4d39388-65f1-4d89-8200-3989c255e3bc)
 
 ![image](https://github.com/user-attachments/assets/37cb6187-e78a-4543-9479-ec965b601edb)
 
